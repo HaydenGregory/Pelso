@@ -20,6 +20,25 @@ WIDTH, HEIGHT = 1500, 900
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pelso")
 
+#! Health Bars
+class HealthBar():
+	def __init__(self, x, y, hp, max_hp):
+		self.x = x
+		self.y = y
+		self.hp = hp
+		self.max_hp = max_hp
+
+	def draw(self, hp):
+		#update with new health
+		self.hp = hp
+		#calculate health ratio
+		ratio = self.hp / self.max_hp
+		pygame.draw.rect(WIN, RED, (self.x, self.y, 150, 30))
+		pygame.draw.rect(WIN, GREEN, (self.x, self.y, 150 * ratio, 30))
+
+user_health_bar = HealthBar(190, 740, user_character.health, user_character.max_hp)
+enemy_mage_health_bar = HealthBar(1150, 80, enemy_mage.health, enemy_mage.max_hp)
+
 
 #! Background Images
 #? Start Menu Image
@@ -109,6 +128,8 @@ def draw_fight_sequence():
     WIN.blit(battle_option3, (810, 770))
     WIN.blit(battle_option4, (810, 800))
     WIN.blit(battle_option5, (810, 830))
+    user_health_bar.draw(3000)
+    enemy_mage_health_bar.draw(1500)
     pygame.display.update()
 
 #! Game Loop Functions

@@ -26,6 +26,7 @@ class EnemyMage(BadGuy):
         self.name = name
         self.attack = attack
         self.health = health
+        self.max_hp = 1500
 
 class GoodGuy:
     def __init__(self, name, health=3000, character_width=100, character_height=85):
@@ -63,6 +64,7 @@ class Wizard(GoodGuy):
         super().__init__('Pelso', 3000)
         self.name = name
         self.health = health
+        self.max_hp = 3000
 
 
         #* Walking function for Wizard.
