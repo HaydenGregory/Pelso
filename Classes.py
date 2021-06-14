@@ -68,3 +68,27 @@ class Wizard(GoodGuy):
         self.wizard_left = self.walk_left[self.current_sprite]
         self.wizard_right = self.walk_right[self.current_sprite]
         self.print = good_wizard
+
+
+# draw_window_s:
+#     def __init__(self):
+#         self.running, self.playing = True, False
+#         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
+#         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
+
+#     def check_events(self):
+#         for event in pygame.event.get():
+#             if event.type == pygame.QUIT:
+#                 self.running, self.playing = False, False
+#             if event.type == pygame.KEYDOWN:
+#                 if event.key == pygame.K_RETURN:
+#                     self.START_KEY = True
+#                 if event.key == pygame.K_BACKSPACE:
+#                     self.BACK_KEY = True
+#                 if event.key == pygame.K_DOWN:
+#                     self.DOWN_KEY = True
+#                 if event.key == pygame.K_UP:
+#                     self.UP_KEY = True
+    
+#     def reset_keys(self):
+#         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
