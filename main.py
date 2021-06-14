@@ -1,46 +1,69 @@
 
 #todo: Set an inventory function. Set Boundaries for walls and enemy. Set chest object. Health display. Set seprate draw screen for combat. 
-
+#! Imports
 import sys
 import pygame
 import os
 from pygame import key
+from pygame import color
 from pygame.constants import HIDDEN, QUIT
 from pygame.key import get_pressed, key_code
-from Classes import BadGuy, GoodGuy, WarriorB, Wizard
+from Classes import BadGuy, GoodGuy, EnemyMage, Wizard
 pygame.init()
 
+#! Defining Characters
+user_character = Wizard('Pelso', 3000)
+enemy_mage = EnemyMage('Magnifco the Great', 500, 1500)
 
-user_character = Wizard('Pelso')
-warrior_enemy = WarriorB()
-
-#* Window Display settings
+#! Window Display settings
 WIDTH, HEIGHT = 1500, 900
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pelso")
 
+
+#! Background Images
 #? Start Menu Image
 start_screen_image = pygame.transform.scale(pygame.image.load(os.path.join('Assets', 'Title Screen.png')), (WIDTH, HEIGHT))
 #? Background Image Walking
 background_import = pygame.image.load(os.path.join('Assets', 'Dungeon.png'))
 Background = pygame.transform.scale(background_import, (WIDTH, HEIGHT))
+#? Background Image Fight
+fight_background = pygame.transform.scale(pygame.image.load(os.path.join('Assets', 'fighting.jpg')), (WIDTH, HEIGHT))
 
-smallfont = pygame.font.Font(os.path.join('Assets', 'Fipps-Regular.ttf'), 20)
-# light shade of the buttons
+#! Fonts
+medium_font = pygame.font.Font(os.path.join('Assets', 'Fipps-Regular.ttf'), 20)
+small_font = pygame.font.Font(os.path.join('Assets', 'Fipps-Regular.ttf'), 10)
+
+#! Colors 
 color_light = (170,170,170)
-# dark shade of the buttons
 color_dark = (100,100,100)
-
+RED = ((255, 0, 0))
+GREEN = ((0, 255, 0))
 WHITE = ((255, 255, 255))
 FPS = 60
 VEL = 5
 
-start = smallfont.render('START' , True , WHITE)
-quit = smallfont.render('QUIT', True, WHITE)
+#! Texts to be displayed
+start = medium_font.render('START' , True , WHITE)
+quit = medium_font.render('QUIT', True, WHITE)
 
+#* User displays
+player_health = medium_font.render(f"""HP: {str(user_character.health)}""",  True, RED)
+pelso_name = medium_font.render(str(user_character.name),  True, WHITE)
+battle_option1 = medium_font.render(f"""1. Fire Blast, {str(enemy_mage.name)}""", True, WHITE)
+battle_option2 = medium_font.render(f"2. Lightning Strike, {str(enemy_mage.name)}", True, WHITE)
+battle_option3 = medium_font.render("3. Cast Regeneration Spell", True, WHITE)
+battle_option4 = medium_font.render("4. Open Inventory", True, WHITE)
+battle_option5 = medium_font.render("5. Attempt to Flee", True, WHITE)
+#* Enemy displays 
+enemy_name = medium_font.render(str(enemy_mage.name), True, WHITE)
+enemy_health = medium_font.render(f"""HP: {str(enemy_mage.health)}""", True, RED)
+
+#! Rectangles for Characters
 player = pygame.Rect(125, 700, user_character.width, user_character.height)
-enemy = pygame.Rect(500, 700, warrior_enemy.width, warrior_enemy.height) 
+enemy = pygame.Rect(500, 700, enemy_mage.width, enemy_mage.height) 
 
+#! Functions
 
 def player_movement(keys_pressed, player):
         if keys_pressed[pygame.K_RIGHT]: #* Move Right
@@ -64,18 +87,40 @@ def player_movement(keys_pressed, player):
             if player.y <= 800: 
                 player.y += VEL
 
-
 def draw_window_walk():
     WIN.blit(Background, (0,0))
     WIN.blit(user_character.print, (player.x, player.y))
-    WIN.blit(warrior_enemy.print, (enemy.x, enemy.y))
+    WIN.blit(enemy_mage.print, (enemy.x, enemy.y))
     user_character.update()
     # WIN.blit(user_character.print()(200, 200))
     pygame.display.update()
 
+def draw_fight_sequence():
+    WIN.blit(fight_background, (0,0))
+    pygame.draw.rect(WIN, color_light,[30, 700, 450,200])
+    pygame.draw.rect(WIN, color_light, [800, 700, 700, 200])
+    pygame.draw.rect(WIN, color_light, [1000, 30, 350, 100])
+    WIN.blit(player_health, (40, 730))
+    WIN.blit(pelso_name, (40, 700))
+    WIN.blit(enemy_name, (1010, 40))
+    WIN.blit(enemy_health, (1010, 70))
+    WIN.blit(battle_option1, (810, 710))
+    WIN.blit(battle_option2, (810, 740))
+    WIN.blit(battle_option3, (810, 770))
+    WIN.blit(battle_option4, (810, 800))
+    WIN.blit(battle_option5, (810, 830))
+    pygame.display.update()
 
-
-
+#! Game Loop Functions
+def fight_loop():
+    clock = pygame.time.Clock()
+    while True:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+        draw_fight_sequence()
+        keys_pressed = pygame.key.get_pressed()
 
 def startscreen():
     while True:
@@ -87,7 +132,7 @@ def startscreen():
             if WIDTH/2 <= mouse[0] <= WIDTH/2+140 and HEIGHT/2 <= mouse[1] <= HEIGHT/2+40:
                 break
             if WIDTH/2 <= mouse[0] <= WIDTH/2+140 and HEIGHT/2+80 <= mouse[1] <= HEIGHT/2+120:
-                    pygame.quit()
+                pygame.quit()
         WIN.blit(start_screen_image, (0,0))
         # stores the (x,y) coordinates into
         # the variable as a tuple
@@ -124,9 +169,10 @@ def main():
         # elif keys_pressed[pygame.K_i]:
         #     WIN.blit(print(str(user_character.inventory())))
     
-    pygame.quit()
+    # pygame.quit()
 
 
 if __name__ == "__main__":
     startscreen()
     main()
+    fight_loop()
