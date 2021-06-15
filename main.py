@@ -84,6 +84,10 @@ enemy = pygame.Rect(500, 700, enemy_mage.width, enemy_mage.height)
 
 #! Functions
 
+def draw_text(text, font, text_col, x, y):
+	img = font.render(text, True, text_col)
+	WIN.blit(img, (x, y))
+
 def player_movement(keys_pressed, player):
         if keys_pressed[pygame.K_RIGHT]: #* Move Right
             user_character.print = user_character.wizard_right
@@ -142,6 +146,11 @@ def fight_loop():
                 quit()
         draw_fight_sequence()
         keys_pressed = pygame.key.get_pressed()
+        if keys_pressed[pygame.K_1] == 1:
+            user_character.fire_blast(enemy_mage)
+            draw_text(f"{user_character.name} hit {enemy_mage.name} for 350", small_font, WHITE, 40, 740)
+            pygame.display.update()
+
 
 def startscreen():
     while True:

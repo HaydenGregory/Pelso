@@ -49,7 +49,7 @@ class Wizard(GoodGuy):
         self.wizard_right = self.walk_right[self.current_sprite]
 
 #! Attack Functions 
-    def fire_blast(target):
+    def fire_blast(self, target):
         target.health -= 350
 
     def regeneration_spell(self):
