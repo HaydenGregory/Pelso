@@ -1,5 +1,7 @@
+from typing import Annotated
 import pygame
 import os
+import random
 from pygame.key import get_pressed, key_code
 from pygame.display import update
 pygame.init()
@@ -9,33 +11,75 @@ character_width, character_height = 50, 60
 #* Default Width and Height of Characters (BAD)
 character_width_b, character_height_b = 100, 85
 
-class BadGuy:
-    def __init__(self, name, attack=0, health=0, character_width=100, character_height=85 ):
+class Item:
+    def __str__(self):
+        return self.name
+
+    def __init__(self, name, attack_boost=0, health_boost=0):
+        self.attack_boost = attack_boost
+        self.health_boost = health_boost
         self.name = name
-        self.attack = attack
+    
+    def use_health_potion(self, target):
+        target.health += self.health_boost
+
+    def use_spell(self, spell, target):
+        spell(target)
+
+class Spell:
+    def __str__(self):
+        return self.name
+    
+    def __init__(self, name):
+        self.name = name
+    
+    def use_spell(self, target):
+        hit = random.choice([True, False])
+        if hit == True:
+            target.attack_amount = random.randint(100,150)
+        else:
+            target.attack_amount = 0
+
+class BadGuy:
+    def __init__(self, name, health=0, character_width=100, character_height=85 ):
+        self.name = name
         self.health = health
         self.width = character_width
         self.height = character_height
 
 class EnemyMage(BadGuy):
-    def __init__(self, name, attack=0, health=0):
+    def __init__(self, name, health=0):
         super().__init__('')
         bad_warrior_import = pygame.image.load(os.path.join('Assets', 'badwiz.png'))
         bad_warrior = pygame.transform.scale(bad_warrior_import, (character_width_b, character_height_b))
         self.print = bad_warrior
         self.name = name
-        self.attack = attack
+        self.attack_amount = []
         self.health = health
+        self.is_alive = True
+        if self.health <= 0:
+            self.is_alive = False
         self.max_hp = 1500
+
+#! Bad Guy Attack Function
+
+    def attack(self, target):
+        attack_amount = random.randint(350, 650)
+        self.attack_amount.append(attack_amount)
+        target.health -= attack_amount
 
 class GoodGuy:
     def __init__(self, name, health=3000, character_width=100, character_height=85):
         self.name = name
         self.health = health
-        self.inventory = []
         self.height = character_height
         self.width = character_width
+        self.attack_amount = []
+        self.regen_amount = []
+        self.is_alive = True
 
+    # def use_item(item):
+        
 class Wizard(GoodGuy):
                     #* How it calls on the images to be looped
 
@@ -48,16 +92,21 @@ class Wizard(GoodGuy):
         self.wizard_left = self.walk_left[self.current_sprite]
         self.wizard_right = self.walk_right[self.current_sprite]
 
-#! Attack Functions 
+#! Good Guy Attack Functions 
     def fire_blast(self, target):
-        target.health -= 350
-
+        attack_amount = random.randint(200, 350)
+        self.attack_amount.append(attack_amount)
+        target.health -= attack_amount
+    
     def regeneration_spell(self):
-        self.health += 200
+        regeneration_amount = random.randint(130, 200)
+        self.regen_amount.append(regeneration_amount)
+        self.health += regeneration_amount
 
-    def lightning_blast(target):
-        target.health -= 500
-
+    def lightning_blast(self, target):
+        attack_amount = random.randint(350, 500)
+        self.attack_amount.append(attack_amount)
+        target.health -= attack_amount
 
 #! __INIT__ Function
     def __init__(self, name, health=0):
@@ -65,7 +114,7 @@ class Wizard(GoodGuy):
         self.name = name
         self.health = health
         self.max_hp = 3000
-
+        self.inventory = []
 
         #* Walking function for Wizard.
         self.walk_left = []
@@ -91,3 +140,7 @@ class Wizard(GoodGuy):
         self.wizard_left = self.walk_left[self.current_sprite]
         self.wizard_right = self.walk_right[self.current_sprite]
         self.print = good_wizard
+
+#! Good Guy Use Items Function
+    def use_item(self, item, target):
+        return item(target)
