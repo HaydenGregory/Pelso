@@ -88,6 +88,7 @@ battle_option2 = medium_font.render(f"2. Lightning Strike, {str(enemy_mage.name)
 battle_option3 = medium_font.render("3. Cast Regeneration Spell", True, WHITE)
 battle_option4 = medium_font.render("4. Open Inventory", True, WHITE)
 battle_option5 = medium_font.render("5. Attempt to Flee", True, WHITE)
+thanks_message = large_font.render("Thanks For Playing!", True, WHITE)
 
 #! Rectangles for Characters
 player = pygame.Rect(125, 700, user_character.width, user_character.height)
@@ -188,6 +189,8 @@ def used_item_in_inventory_message2():
     return f"{user_character.name}, used {user_character.inventory[1]}."
 
 def enemy_attack_message():
+    if enemy_mage.skip_turn:
+        return f"{enemy_mage.name} is confused and missed the attack."
     if enemy_mage.attack_amount[0] > 525:
         return f"**CRITICAL** {enemy_mage.name} attacks {user_character.name} for {enemy_mage.attack_amount[0]}"
     else:
@@ -218,7 +221,7 @@ def fight_loop():
     end_message = ''
     flee_message = ''
     player_turn = True
-
+    in_inventory = False
     while enemy_mage.is_alive and user_character.is_alive:
         FPS = 60
         clock.tick(FPS)
@@ -227,60 +230,63 @@ def fight_loop():
                 quit()
         keys_pressed = pygame.key.get_pressed()
         if player_turn:
-            if keys_pressed[pygame.K_1]:
-                user_character.fire_blast(enemy_mage)
-                message = fire_blast_message()
-                del user_character.attack_amount[0]
-                player_turn = False
-            if keys_pressed[pygame.K_2]:
-                user_character.lightning_blast(enemy_mage)
-                message = lightning_blast_message()
-                del user_character.attack_amount[0]
-                player_turn = False
-            if keys_pressed[pygame.K_3]:
-                user_character.regeneration_spell()
-                message = regeneration_spell_message()
-                del user_character.regen_amount[0]
-                player_turn = False
-            if keys_pressed[pygame.K_4]:
-                in_inventory = True
-                while in_inventory:
-                    message = user_inventory_message() + "3. Return."
-                    if keys_pressed[pygame.K_1]:
-                        health_potion.use_health_potion(user_character)
-                        message = used_item_in_inventory_message1()
-                        draw_fight_sequence(message, end_message, flee_message)
-                        player_turn = False
-                        break
-                    if keys_pressed[pygame.K_2]:
-                        spell_of_confusion.use_spell(enemy_mage)
-                        message = used_item_in_inventory_message2
-                        draw_fight_sequence(message, end_message, flee_message)
-                        player_turn = False
-                        break
-                    if keys_pressed[pygame.K_3]:
-                        break
+            if in_inventory:
+                message = user_inventory_message() + "0. Return."
+                if keys_pressed[pygame.K_1]:
+                    health_potion.use_health_potion(user_character)
+                    message = used_item_in_inventory_message1()
                     draw_fight_sequence(message, end_message, flee_message)
-                player_turn = False
-            if keys_pressed[pygame.K_5]:
-                if attempt_flee():
-                    flee_message = success_flee_message()
-                    enemy_mage.is_alive = False
+                    in_inventory = False
+                    time.sleep(1)
+                if keys_pressed[pygame.K_2]:
+                    spell_of_confusion.use_spell(enemy_mage)
+                    message = used_item_in_inventory_message2()
+                    draw_fight_sequence(message, end_message, flee_message)
                     player_turn = False
-                    draw_fight_sequence(message, end_message, flee_message)
-                    main()
-                else:
-                    flee_message = failed_flee_message()
-                    player_turn =False
-                    draw_fight_sequence(message, end_message, flee_message)
-
+                    in_inventory = False
+                    time.sleep(1)
+                if keys_pressed[pygame.K_0]:
+                    in_inventory = False
+                    time.sleep(1)
+                draw_fight_sequence(message, end_message, flee_message)
+            else:
+                if keys_pressed[pygame.K_1]:
+                    user_character.fire_blast(enemy_mage)
+                    message = fire_blast_message()
+                    del user_character.attack_amount[0]
+                    player_turn = False
+                if keys_pressed[pygame.K_2]:
+                    user_character.lightning_blast(enemy_mage)
+                    message = lightning_blast_message()
+                    del user_character.attack_amount[0]
+                    player_turn = False
+                if keys_pressed[pygame.K_3]:
+                    user_character.regeneration_spell()
+                    message = regeneration_spell_message()
+                    del user_character.regen_amount[0]
+                    player_turn = False
+                if keys_pressed[pygame.K_4]:
+                    in_inventory = True
+                if keys_pressed[pygame.K_5]:
+                    if attempt_flee():
+                        flee_message = success_flee_message()
+                        enemy_mage.is_alive = False
+                        player_turn = False
+                        draw_fight_sequence(message, end_message, flee_message)
+                        main()
+                    else:
+                        flee_message = failed_flee_message()
+                        player_turn =False
+                        draw_fight_sequence(message, end_message, flee_message)
         else:
             flee_message = ''
             time.sleep(2)
             enemy_mage.attack(user_character)
             message = enemy_attack_message()
-            del enemy_mage.attack_amount[0]
+            if enemy_mage.attack_amount:
+                del enemy_mage.attack_amount[0]
             player_turn = True
+            enemy_mage.skip_turn = False
         
         if user_character.health <= 0:
             user_character.is_alive = False
@@ -291,7 +297,7 @@ def fight_loop():
             end_message = end_fight_message()
             draw_fight_sequence(message, end_message, flee_message)
             time.sleep(5)
-
+        print(enemy_mage.attack_amount)
         draw_fight_sequence(message, end_message, flee_message)
 
 def startscreen():
@@ -334,7 +340,27 @@ def main():
         if player.colliderect(enemy):
             break
 
+def end_screen():
+    while True:
+        WIN.blit(start_screen_image, (0,0))
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                pygame.quit()
+        if ev.type == pygame.MOUSEBUTTONDOWN:
+            if WIDTH/2 <= mouse[0] <= WIDTH/2+140 and HEIGHT/2 <= mouse[1] <= HEIGHT/2+40:
+                break
+            if WIDTH/2 <= mouse[0] <= WIDTH/2+140 and HEIGHT/2+80 <= mouse[1] <= HEIGHT/2+120:
+                pygame.quit()
+        mouse = pygame.mouse.get_pos()
+        if WIDTH/2 <= mouse[0] <= WIDTH/2+140 and HEIGHT/2+80 <= mouse[1] <= HEIGHT/2+120:
+            pygame.draw.rect(WIN,color_light,[WIDTH/2,HEIGHT/2+80,140,40])
+        else:pygame.draw.rect(WIN,color_dark,[WIDTH/2,HEIGHT/2+80,140,40])
+        WIN.blit(thanks_message, (450, 600))
+        WIN.blit(quit, (WIDTH/2+37, HEIGHT/2+80))
+        pygame.display.update()
+
 if __name__ == "__main__":
     startscreen()
     main()
     fight_loop()
+    end_screen()

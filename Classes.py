@@ -34,11 +34,12 @@ class Spell:
         self.name = name
     
     def use_spell(self, target):
-        hit = random.choice([True, False])
+        hit = random.choice([True, False, False, False])
         if hit == True:
-            target.attack_amount = random.randint(100,150)
-        else:
-            target.attack_amount = 0
+            amount_to_append = int(random.randint(100,150))
+            target.attack_amount.append(amount_to_append)
+        if hit == False:
+            target.skip_turn = True
 
 class BadGuy:
     def __init__(self, name, health=0, character_width=100, character_height=85 ):
@@ -55,18 +56,20 @@ class EnemyMage(BadGuy):
         self.print = bad_warrior
         self.name = name
         self.attack_amount = []
+        self.skip_turn = False
         self.health = health
         self.is_alive = True
-        if self.health <= 0:
-            self.is_alive = False
         self.max_hp = 1500
 
-#! Bad Guy Attack Function
+        #! Bad Guy Attack Function
 
     def attack(self, target):
-        attack_amount = random.randint(350, 650)
-        self.attack_amount.append(attack_amount)
-        target.health -= attack_amount
+        if self.skip_turn == True:
+            return
+        else: 
+            amount_to_append = random.randint(350, 650)
+            self.attack_amount.append(amount_to_append)
+            target.health -= amount_to_append
 
 class GoodGuy:
     def __init__(self, name, health=3000, character_width=100, character_height=85):
@@ -79,7 +82,7 @@ class GoodGuy:
         self.is_alive = True
 
     # def use_item(item):
-        
+
 class Wizard(GoodGuy):
                     #* How it calls on the images to be looped
 
@@ -92,7 +95,7 @@ class Wizard(GoodGuy):
         self.wizard_left = self.walk_left[self.current_sprite]
         self.wizard_right = self.walk_right[self.current_sprite]
 
-#! Good Guy Attack Functions 
+        #! Good Guy Attack Functions 
     def fire_blast(self, target):
         attack_amount = random.randint(200, 350)
         self.attack_amount.append(attack_amount)
@@ -108,7 +111,7 @@ class Wizard(GoodGuy):
         self.attack_amount.append(attack_amount)
         target.health -= attack_amount
 
-#! __INIT__ Function
+        #! __INIT__ Function
     def __init__(self, name, health=0):
         super().__init__('Pelso', 3000)
         self.name = name
@@ -141,6 +144,6 @@ class Wizard(GoodGuy):
         self.wizard_right = self.walk_right[self.current_sprite]
         self.print = good_wizard
 
-#! Good Guy Use Items Function
+        #! Good Guy Use Items Function
     def use_item(self, item, target):
         return item(target)
