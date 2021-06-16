@@ -1,12 +1,13 @@
 
 #todo: Set an inventory function. Set Boundaries for walls and enemy. Set chest object. Health display. Set seprate draw screen for combat. 
 #! Imports
-from math import e
 import sys
 import pygame
 import os
 import time 
 import random
+from pygame import mixer
+from math import e
 from pygame import key
 from pygame import color
 from pygame import draw
@@ -62,6 +63,11 @@ background_import = pygame.image.load(os.path.join('Assets', 'Dungeon.png'))
 Background = pygame.transform.scale(background_import, (WIDTH, HEIGHT))
 #? Background Image Fight
 fight_background = pygame.transform.scale(pygame.image.load(os.path.join('Assets', 'fighting.jpg')), (WIDTH, HEIGHT))
+
+#! Music
+mixer.music.load(os.path.join('Assets', 'fightme.mp3'))
+mixer.music.load(os.path.join('Assets', 'intown.mp3'))
+mixer.music.set_volume(0.7)
 
 #! Fonts
 medium_font = pygame.font.Font(os.path.join('Assets', 'Fipps-Regular.ttf'), 20)
@@ -216,6 +222,8 @@ def regeneration_spell_message():
 
 #! Game Loop Functions
 def fight_loop():
+    mixer.music.load(os.path.join('Assets', 'fightme.mp3'))
+    mixer.music.play(4)
     clock = pygame.time.Clock()
     message = ''
     end_message = ''
@@ -301,6 +309,7 @@ def fight_loop():
         draw_fight_sequence(message, end_message, flee_message)
 
 def startscreen():
+    mixer.music.play(4)
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
@@ -341,6 +350,8 @@ def main():
             break
 
 def end_screen():
+    mixer.music.load(os.path.join('Assets', 'intown.mp3'))
+    mixer.music.play(4, 25)
     while True:
         WIN.blit(start_screen_image, (0,0))
         for ev in pygame.event.get():
