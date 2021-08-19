@@ -24,4 +24,4 @@ A fun top down turn based rpg. Play as the great wizard Pelso as he trys to esca
 
   - One week individual project for Digital Crafts
   - Set out to build a fun python based terminal rpg, and decided to add visuals with pygame.
-  - This project was a learning experience for learning class in python and how to work with external libriaries.
+  - This project was a learning experience for learning classes in python and how to work with external libraries.
